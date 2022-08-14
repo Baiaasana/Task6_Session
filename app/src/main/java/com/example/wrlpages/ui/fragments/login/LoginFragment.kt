@@ -71,7 +71,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
                         is Resource.Error -> {
                             hideProgressBar()
                             Toast.makeText(context,
-                                getString(R.string.email_password_incorrect),
+                                getString(R.string.email_password_incorrect) + "\n ${it.message}",
                                 Toast.LENGTH_SHORT).show()
                         }
                         is Resource.Loader -> {

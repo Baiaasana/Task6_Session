@@ -70,7 +70,7 @@ class RegistrationFragment :
                         is Resource.Error -> {
                             hideProgressBar()
                             Toast.makeText(context,
-                                getString(R.string.already_registered),
+                                getString(R.string.already_registered) + "\n ${it.message}",
                                 Toast.LENGTH_SHORT).show()
 //                            Snackbar.make(requireView(), getString(R.string.already_registered), Snackbar.LENGTH_LONG).show()
                         }
