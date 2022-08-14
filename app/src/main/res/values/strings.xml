@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">WRLPages</string>
+    <string name="register">Register</string>
+    <string name="email">Email</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="welcome">Welcome</string>
+    <string name="login">Login</string>
+    <string name="home_fragment">{ Home Fragment }</string>
+    <string name="empty_fields_error">Please fill in all the fields!</string>
+    <string name="invalid_email_error">Please enter the valid email!</string>
+    <string name="logged_success">You have logged in successfully!</string>
+    <string name="email_password_incorrect">Email or password is not correct!</string>
+    <string name="password_length_limit">Password must contain at least 8 characters!</string>
+    <string name="already_registered">This email is already used. Please use another email!</string>
+    <string name="register_success">You have registered successfully!</string>
+</resources>
