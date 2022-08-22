@@ -1,16 +1,24 @@
 package com.example.wrlpages.ui.fragments.registration
 
+import android.content.Context
 import android.util.Log.d
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.wrlpages.App.Companion.context
 import com.example.wrlpages.models.register.RegisterDataModel
 import com.example.wrlpages.models.register.RegisterModel
 import com.example.wrlpages.network.RetrofitClient
 import com.example.wrlpages.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+
 
 class RegistrationViewModel : ViewModel() {
 
@@ -45,4 +53,5 @@ class RegistrationViewModel : ViewModel() {
             emit(Resource.Error(message = e.message ?: "error"))
         }
     }
+
 }

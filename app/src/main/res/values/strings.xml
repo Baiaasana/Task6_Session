@@ -14,4 +14,6 @@
     <string name="password_length_limit">Password must contain at least 8 characters!</string>
     <string name="already_registered">This email is already used. Please use another email!</string>
     <string name="register_success">You have registered successfully!</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="pass_not_match">Passwords do not match!</string>
 </resources>

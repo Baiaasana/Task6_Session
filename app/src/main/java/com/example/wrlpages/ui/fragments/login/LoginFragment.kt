@@ -3,11 +3,15 @@ package com.example.wrlpages.ui.fragments.login
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.example.wrlpages.Constants
 import com.example.wrlpages.R
 import com.example.wrlpages.ui.fragments.base.BaseFragment
 import com.example.wrlpages.databinding.FragmentLoginBinding
@@ -20,8 +24,21 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setFragmentListener()
         listeners()
         observers()
+    }
+
+    private fun setFragmentListener() {
+        setFragmentResultListener(Constants.REQUEST_KEY) { requestKey, bundle ->
+            val resultemail = bundle.getString(Constants.BUNDLE_KEY)
+            binding.etEmail.setText(resultemail)
+        }
+
+        setFragmentResultListener(Constants.REQUEST_KEY_PAS) { requestKey, bundle ->
+            val resultPassword = bundle.getString(Constants.BUNDLE_KEY_PAS)
+            binding.etPassword.setText(resultPassword)
+        }
     }
 
     private fun listeners() {
@@ -45,13 +62,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
                 }
             }
         }
-//        binding.etPassword.doOnTextChanged { text, start, before, count ->
-//            if (text!!.length < 8) {
-//                binding.tILPassword.error = "Password must contains more than 8 symbols"
-//            } else if (text.length > 8) {
-//                binding.tILPassword.error = null
-//            }
-//        }
     }
 
     private fun observers() {
@@ -83,8 +93,14 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
         }
     }
 
-    private fun navigateToHomeFragment() =
+
+    private fun navigateToHomeFragment() {
+        lifecycleScope.launch {
+            viewModel.save(Constants.KEY, Constants.VALUE)
+            Toast.makeText(context, "Data is saved!", Toast.LENGTH_SHORT).show()
+        }
         findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment())
+    }
 
     private fun isValidEmail(): Boolean =
         android.util.Patterns.EMAIL_ADDRESS.matcher(binding.etEmail.text.toString()).matches()

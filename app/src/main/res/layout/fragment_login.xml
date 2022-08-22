@@ -133,6 +133,15 @@
                         android:textSize="24sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <CheckBox
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Remember me"
+                    android:textSize="18sp"
+                    android:layout_marginHorizontal="40dp"
+                    android:paddingHorizontal="10dp"
+                    android:textColor="@color/black"/>
+
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btn_login"
                     android:layout_width="match_parent"

@@ -40,6 +40,13 @@
                     android:layout_marginTop="30dp"
                     android:visibility="invisible" />
 
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/img_back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="40dp"
+                    android:layout_marginTop="40dp"
+                    android:src="@drawable/ic_arrow_back" />
             </FrameLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -122,6 +129,40 @@
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:layout_gravity="center_vertical"
+                        android:drawablePadding="10dp"
+                        android:inputType="textPassword"
+                        android:textColor="@color/pink"
+                        android:textSize="24sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tIL_repeat_password"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginHorizontal="30dp"
+                    android:layout_marginVertical="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/custom_btn_2"
+                    android:gravity="center_vertical"
+                    android:hint="@string/repeat_password"
+                    android:paddingHorizontal="20dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:textColorHint="@color/light_pink"
+                    app:boxStrokeWidth="0dp"
+                    app:boxStrokeWidthFocused="0dp"
+                    app:endIconMode="password_toggle"
+                    app:endIconTint="@color/pink"
+                    app:startIconDrawable="@drawable/block"
+                    app:startIconTint="@color/pink">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_repeat_password"
                         android:layout_width="match_parent"
                         android:layout_height="80dp"
                         android:layout_gravity="center_vertical"

@@ -3,13 +3,20 @@ package com.example.wrlpages.ui.fragments.registration
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import com.example.wrlpages.Constants
 import com.example.wrlpages.R
 import com.example.wrlpages.ui.fragments.base.BaseFragment
 import com.example.wrlpages.databinding.FragmentRegistrationBinding
+import com.example.wrlpages.models.register.RegisterDataModel
+import com.example.wrlpages.models.register.RegisterModel
 import com.example.wrlpages.utils.Resource
 import kotlinx.coroutines.launch
 
@@ -44,12 +51,18 @@ class RegistrationFragment :
                             getString(R.string.password_length_limit),
                             Toast.LENGTH_SHORT).show()
                     }
+                    !passwordsMatch() -> {
+                        Toast.makeText(context, getString(R.string.pass_not_match), Toast.LENGTH_SHORT).show()
+                    }
                     else -> {
                         viewModel.register(email = binding.etEmail.text.toString(),
                             password = binding.etPassword.text.toString())
                     }
                 }
             }
+        }
+        binding.imgBack.setOnClickListener {
+            registerToWelcome()
         }
     }
 
@@ -64,7 +77,7 @@ class RegistrationFragment :
                                 Toast.makeText(context,
                                     getString(R.string.register_success),
                                     Toast.LENGTH_SHORT).show()
-
+                                registerToLogin()
                             }
                         }
                         is Resource.Error -> {
@@ -72,7 +85,6 @@ class RegistrationFragment :
                             Toast.makeText(context,
                                 getString(R.string.already_registered) + "\n ${it.message}",
                                 Toast.LENGTH_SHORT).show()
-//                            Snackbar.make(requireView(), getString(R.string.already_registered), Snackbar.LENGTH_LONG).show()
                         }
                         is Resource.Loader -> {
                             showProgressBar()
@@ -94,6 +106,9 @@ class RegistrationFragment :
     private fun isValidPassword(): Boolean = with(binding) {
         return@with binding.etPassword.text.toString().length < 8
     }
+    private fun passwordsMatch(): Boolean = with(binding){
+        return@with binding.etPassword.text.toString() == binding.etRepeatPassword.text.toString()
+    }
 
     private fun showProgressBar() {
         binding.progressBar.visibility = View.VISIBLE
@@ -102,4 +117,16 @@ class RegistrationFragment :
     private fun hideProgressBar() {
         binding.progressBar.visibility = View.INVISIBLE
     }
+    private fun registerToLogin(){
+        val emailInput = binding.etEmail.text.toString()
+        val passwordInput = binding.etPassword.text.toString()
+        setFragmentResult(Constants.REQUEST_KEY, bundleOf(Constants.BUNDLE_KEY to emailInput))
+        setFragmentResult(Constants.REQUEST_KEY_PAS, bundleOf(Constants.BUNDLE_KEY_PAS to passwordInput))
+        findNavController().navigate(RegistrationFragmentDirections.actionRegistrationFragmentToLoginFragment())
+    }
+
+    private fun registerToWelcome(){
+        findNavController().navigate(RegistrationFragmentDirections.actionRegistrationFragmentToWelcomeFragment())
+    }
+
 }
