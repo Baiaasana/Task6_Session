@@ -28,11 +28,10 @@ class RegistrationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        listeners()
-        observers()
+
     }
 
-    private fun listeners() {
+    override fun listeners() {
         binding.apply {
             btnRegister.setOnClickListener {
                 when {
@@ -66,7 +65,7 @@ class RegistrationFragment :
         }
     }
 
-    private fun observers() {
+    override fun observers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.registerState.collect {
@@ -93,6 +92,10 @@ class RegistrationFragment :
                 }
             }
         }
+    }
+
+    override fun init() {
+
     }
 
     private fun isValidEmail(): Boolean =

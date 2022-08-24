@@ -1,6 +1,7 @@
 package com.example.wrlpages.ui.fragments.login
 
 import android.os.Bundle
+import android.util.Log.d
 import android.view.View
 import android.widget.Toast
 import androidx.core.os.bundleOf
@@ -12,10 +13,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.wrlpages.Constants
+import com.example.wrlpages.MyDataStore
 import com.example.wrlpages.R
 import com.example.wrlpages.ui.fragments.base.BaseFragment
 import com.example.wrlpages.databinding.FragmentLoginBinding
 import com.example.wrlpages.utils.Resource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::inflate) {
@@ -25,8 +28,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setFragmentListener()
-        listeners()
-        observers()
+
     }
 
     private fun setFragmentListener() {
@@ -41,7 +43,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
         }
     }
 
-    private fun listeners() {
+    override fun listeners() {
         binding.btnLogin.setOnClickListener {
             when {
                 isEmptyField() -> {
@@ -57,14 +59,26 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
                         .show()
                 }
                 else -> {
-                    viewModel.login(email = binding.etEmail.text.toString(),
+                    viewModel.login(Constants.KEY, email = binding.etEmail.text.toString(),
                         password = binding.etPassword.text.toString())
                 }
+            }
+            if(binding.rememberMe.isChecked){
+                observerss()
+            }
+            else{
+                navigateToHomeFragment(binding.etEmail.text.toString())
             }
         }
     }
 
-    private fun observers() {
+    override fun init() {
+    }
+
+    override fun observers() {
+    }
+
+    private fun observerss() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.loginState.collect {
@@ -75,7 +89,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
                                     getString(R.string.logged_success),
                                     Toast.LENGTH_SHORT).show()
                                 hideProgressBar()
-                                navigateToHomeFragment()
+
+                                navigateToHomeFragment(null)
                             }
                         }
                         is Resource.Error -> {
@@ -93,13 +108,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
         }
     }
 
-
-    private fun navigateToHomeFragment() {
-        lifecycleScope.launch {
-            viewModel.save(Constants.KEY, Constants.VALUE)
-            Toast.makeText(context, "Data is saved!", Toast.LENGTH_SHORT).show()
-        }
-        findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment())
+    private fun navigateToHomeFragment(arg: String?) {
+            findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment(arg))
     }
 
     private fun isValidEmail(): Boolean =

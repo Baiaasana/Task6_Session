@@ -9,6 +9,5 @@ object Constants {
     const val BUNDLE_KEY_PAS = "bundle_key_pas"
 
     const val KEY = "token"
-    const val VALUE = "1234"
 
 }
