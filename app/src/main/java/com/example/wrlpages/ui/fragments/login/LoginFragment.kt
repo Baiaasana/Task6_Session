@@ -1,11 +1,9 @@
 package com.example.wrlpages.ui.fragments.login
 
 import android.os.Bundle
-import android.util.Log.d
 import android.view.View
 import android.widget.Toast
-import androidx.core.os.bundleOf
-import androidx.fragment.app.setFragmentResult
+import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -13,12 +11,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.wrlpages.Constants
-import com.example.wrlpages.MyDataStore
 import com.example.wrlpages.R
 import com.example.wrlpages.ui.fragments.base.BaseFragment
 import com.example.wrlpages.databinding.FragmentLoginBinding
 import com.example.wrlpages.utils.Resource
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::inflate) {
@@ -28,18 +24,14 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setFragmentListener()
-
     }
 
     private fun setFragmentListener() {
-        setFragmentResultListener(Constants.REQUEST_KEY) { requestKey, bundle ->
-            val resultemail = bundle.getString(Constants.BUNDLE_KEY)
-            binding.etEmail.setText(resultemail)
-        }
-
-        setFragmentResultListener(Constants.REQUEST_KEY_PAS) { requestKey, bundle ->
-            val resultPassword = bundle.getString(Constants.BUNDLE_KEY_PAS)
+        setFragmentResultListener(Constants.REQUEST_KEY) { _, bundle ->
+            val resultEmail = bundle.getString(Constants.BUNDLE_KEY, "Default value")
+            val resultPassword = bundle.getString(Constants.BUNDLE_KEY_PAS, "Default value")
             binding.etPassword.setText(resultPassword)
+            binding.etEmail.setText(resultEmail)
         }
     }
 
@@ -59,48 +51,36 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
                         .show()
                 }
                 else -> {
-                    viewModel.login(Constants.KEY, email = binding.etEmail.text.toString(),
+                    viewModel.login(email = binding.etEmail.text.toString(),
                         password = binding.etPassword.text.toString())
                 }
             }
-            if(binding.rememberMe.isChecked){
-                observerss()
-            }
-            else{
-                navigateToHomeFragment(binding.etEmail.text.toString())
+            if (binding.rememberMe.isChecked) {
+                observer()
+            } else {
+                navigateToHomeFragment()
             }
         }
     }
 
-    override fun init() {
-    }
-
-    override fun observers() {
-    }
-
-    private fun observerss() {
+    private fun observer() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.loginState.collect {
                     when (it) {
                         is Resource.Success -> {
-                            it.data?.let {
-                                Toast.makeText(context,
-                                    getString(R.string.logged_success),
-                                    Toast.LENGTH_SHORT).show()
-                                hideProgressBar()
-
-                                navigateToHomeFragment(null)
+                            if (binding.rememberMe.isChecked) {
+                                viewModel.save(Constants.KEY, it.data?.token.toString())
+                                navigateToHomeFragment()
                             }
                         }
                         is Resource.Error -> {
-                            hideProgressBar()
                             Toast.makeText(context,
                                 getString(R.string.email_password_incorrect) + "\n ${it.message}",
                                 Toast.LENGTH_SHORT).show()
                         }
                         is Resource.Loader -> {
-                            showProgressBar()
+                            binding.progressBar.isVisible = it.loading
                         }
                     }
                 }
@@ -108,8 +88,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
         }
     }
 
-    private fun navigateToHomeFragment(arg: String?) {
-            findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment(arg))
+    private fun navigateToHomeFragment() {
+        findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment())
     }
 
     private fun isValidEmail(): Boolean =
@@ -120,11 +100,9 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::i
                 binding.etPassword.text.toString().isEmpty()
     }
 
-    private fun showProgressBar() {
-        binding.progressBar.visibility = View.VISIBLE
+    override fun init() {
     }
 
-    private fun hideProgressBar() {
-        binding.progressBar.visibility = View.INVISIBLE
+    override fun observers() {
     }
 }

@@ -1,14 +1,13 @@
 package com.example.wrlpages.ui.fragments.welcome
 
-import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.Toast
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.wrlpages.Constants
-import com.example.wrlpages.MyDataStore
 import com.example.wrlpages.ui.fragments.base.BaseFragment
 import com.example.wrlpages.databinding.FragmentWelcomeBinding
 import kotlinx.coroutines.launch
@@ -18,20 +17,6 @@ class WelcomeFragment : BaseFragment<FragmentWelcomeBinding>(
 
     private val viewModel: WelcomeViewModel by viewModels()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        listeners()
-    }
-
-    private fun hasSession(key: String):Boolean{
-        val token = MyDataStore.read(key)
-        return token.toString().isNotEmpty()
-    }
-
-    private fun navigateToHome(){
-        findNavController().navigate(WelcomeFragmentDirections.actionWelcomeFragmentToHomeFragment(null))
-    }
-
     override fun listeners() {
         binding.apply {
             btnRegister.setOnClickListener {
@@ -39,21 +24,27 @@ class WelcomeFragment : BaseFragment<FragmentWelcomeBinding>(
             }
             btnLogin.setOnClickListener {
                 findNavController().navigate(WelcomeFragmentDirections.actionWelcomeFragmentToLoginFragment())
-                Log.d("login", "welcome login")
+            }
+        }
+    }
+
+    private fun hasSession() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.getPreferences().collect {
+                    if (it.contains(stringPreferencesKey(Constants.KEY))) {
+                        findNavController().navigate(WelcomeFragmentDirections.actionWelcomeFragmentToHomeFragment())
+                    }
+                }
             }
         }
     }
 
     override fun init() {
 
-        if (hasSession(Constants.KEY)){
-            navigateToHome()
-        }
-
+        hasSession()
     }
 
     override fun observers() {
     }
-
-
 }

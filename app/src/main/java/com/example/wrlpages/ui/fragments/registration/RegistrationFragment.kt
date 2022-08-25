@@ -1,11 +1,10 @@
 package com.example.wrlpages.ui.fragments.registration
 
-import android.os.Bundle
-import android.view.View
+import android.util.Log
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,21 +14,14 @@ import com.example.wrlpages.Constants
 import com.example.wrlpages.R
 import com.example.wrlpages.ui.fragments.base.BaseFragment
 import com.example.wrlpages.databinding.FragmentRegistrationBinding
-import com.example.wrlpages.models.register.RegisterDataModel
-import com.example.wrlpages.models.register.RegisterModel
 import com.example.wrlpages.utils.Resource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
 
 class RegistrationFragment :
     BaseFragment<FragmentRegistrationBinding>(FragmentRegistrationBinding::inflate) {
 
     private val viewModel: RegistrationViewModel by viewModels()
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-    }
 
     override fun listeners() {
         binding.apply {
@@ -51,42 +43,48 @@ class RegistrationFragment :
                             Toast.LENGTH_SHORT).show()
                     }
                     !passwordsMatch() -> {
-                        Toast.makeText(context, getString(R.string.pass_not_match), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context,
+                            getString(R.string.pass_not_match),
+                            Toast.LENGTH_SHORT).show()
                     }
                     else -> {
                         viewModel.register(email = binding.etEmail.text.toString(),
                             password = binding.etPassword.text.toString())
+                        observer()
                     }
                 }
             }
         }
+
         binding.imgBack.setOnClickListener {
             registerToWelcome()
         }
     }
 
-    override fun observers() {
+    private fun observer() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.registerState.collect {
                     when (it) {
                         is Resource.Success -> {
                             it.data?.let {
-                                hideProgressBar()
                                 Toast.makeText(context,
                                     getString(R.string.register_success),
                                     Toast.LENGTH_SHORT).show()
-                                registerToLogin()
+                                fragmentResultApi()
+                                delay(2000)
+                                findNavController().navigate(RegistrationFragmentDirections.actionRegistrationFragmentToLoginFragment())
+                                Log.d("log", "yoy have registered")
+
                             }
                         }
                         is Resource.Error -> {
-                            hideProgressBar()
                             Toast.makeText(context,
                                 getString(R.string.already_registered) + "\n ${it.message}",
                                 Toast.LENGTH_SHORT).show()
                         }
                         is Resource.Loader -> {
-                            showProgressBar()
+                            binding.progressBar.isVisible = it.loading
                         }
                     }
                 }
@@ -95,7 +93,8 @@ class RegistrationFragment :
     }
 
     override fun init() {
-
+    }
+    override fun observers() {
     }
 
     private fun isValidEmail(): Boolean =
@@ -109,26 +108,24 @@ class RegistrationFragment :
     private fun isValidPassword(): Boolean = with(binding) {
         return@with binding.etPassword.text.toString().length < 8
     }
-    private fun passwordsMatch(): Boolean = with(binding){
+
+    private fun passwordsMatch(): Boolean = with(binding) {
         return@with binding.etPassword.text.toString() == binding.etRepeatPassword.text.toString()
     }
 
-    private fun showProgressBar() {
-        binding.progressBar.visibility = View.VISIBLE
-    }
-
-    private fun hideProgressBar() {
-        binding.progressBar.visibility = View.INVISIBLE
-    }
-    private fun registerToLogin(){
+    private fun fragmentResultApi() {
         val emailInput = binding.etEmail.text.toString()
         val passwordInput = binding.etPassword.text.toString()
-        setFragmentResult(Constants.REQUEST_KEY, bundleOf(Constants.BUNDLE_KEY to emailInput))
-        setFragmentResult(Constants.REQUEST_KEY_PAS, bundleOf(Constants.BUNDLE_KEY_PAS to passwordInput))
-        findNavController().navigate(RegistrationFragmentDirections.actionRegistrationFragmentToLoginFragment())
+
+        setFragmentResult(Constants.REQUEST_KEY,
+            bundleOf(
+                Constants.BUNDLE_KEY to emailInput,
+                Constants.BUNDLE_KEY_PAS to passwordInput
+            )
+        )
     }
 
-    private fun registerToWelcome(){
+    private fun registerToWelcome() {
         findNavController().navigate(RegistrationFragmentDirections.actionRegistrationFragmentToWelcomeFragment())
     }
 

@@ -43,6 +43,9 @@
             android:id="@+id/action_loginFragment_to_homeFragment"
             app:destination="@id/homeFragment"
             app:popUpTo="@id/welcomeFragment" />
+        <argument
+            android:name="token"
+            android:defaultValue='"Default token"' />
     </fragment>
     <fragment
         android:id="@+id/homeFragment"
@@ -52,10 +55,5 @@
         <action
             android:id="@+id/action_homeFragment_to_welcomeFragment"
             app:destination="@id/welcomeFragment" />
-        <argument
-            android:name="emailValue"
-            app:argType="string"
-            app:nullable="true" />
-
     </fragment>
 </navigation>

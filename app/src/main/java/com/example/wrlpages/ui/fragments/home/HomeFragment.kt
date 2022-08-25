@@ -1,17 +1,14 @@
 package com.example.wrlpages.ui.fragments.home
 
-import android.os.Bundle
-import android.view.View
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.wrlpages.Constants
-import com.example.wrlpages.MyDataStore
 import com.example.wrlpages.ui.fragments.base.BaseFragment
 import com.example.wrlpages.databinding.FragmentHomeBinding
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
@@ -21,29 +18,37 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     override fun listeners() {
         binding.btnLogout.setOnClickListener {
+            logout()
             findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToWelcomeFragment())
         }
+        observer()
+    }
+
+    private fun observer() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.getPreferences().collect {
+//                    if (it.contains(stringPreferencesKey(Constants.KEY))){
+//                        binding.text.text = it[stringPreferencesKey(Constants.KEY)]
+//                    }
+                    binding.text.text = it[stringPreferencesKey(Constants.KEY)]
+                        ?: "No token \n session does not \n exist"
+                }
+            }
+        }
+    }
+
+    override fun observers() {
     }
 
     override fun init() {
-        lifecycleScope.launch {
-            val emailValue = MyDataStore.read(Constants.KEY)
-            binding.text.text = emailValue.toString()
-        }
     }
 
-
-
-
-
-    override fun observers() {
-
+    private fun logout() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.read(Constants.KEY).collect{
-                    binding.text.text = it
-
-                }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.remove(Constants.KEY)
+                findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToWelcomeFragment())
             }
         }
     }
